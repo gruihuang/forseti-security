@@ -301,6 +301,7 @@ def run_crawler(storage,
     Returns:
         QueueProgresser: The progresser implemented in inventory
     """
+    LOGGER.info('run_crawer')
     engine = config.get_service_config().get_engine()
     if parallel and 'sqlite' in str(engine):
         LOGGER.info('SQLite used, disabling parallel threads.')
