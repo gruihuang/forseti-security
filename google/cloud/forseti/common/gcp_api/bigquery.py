@@ -173,10 +173,22 @@ class BigQueryClient(object):
                 resource=project_id, all=True)
             flattened_results = api_helpers.flatten_list_results(
                 results, 'datasets')
+
+            results = []
+            for dataset in flattened_results:
+                dataset_info = self.repository.datasets.get(
+                    resource=project_id,
+                    target=dataset['datasetId'],
+                    fields='defaultTableExpirationMs')
+                ext_dataset = dataset.copy()
+                ext_dataset['defaultTableExpirationMs'] = dataset_info.get('defaultTableExpirationMs')
+                results.append(ext_dataset)
+                LOGGER.info('dataset_info %s', str(dataset))
+
             LOGGER.debug('Getting bigquery datasets for a given project,'
                          ' project_id = %s, flattened_results = %s',
-                         project_id, flattened_results)
-            return flattened_results
+                         project_id, results)
+            return results
         except (errors.HttpError, HttpLib2Error) as e:
             raise api_errors.ApiExecutionError(project_id, e)
 
