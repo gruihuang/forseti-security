@@ -178,7 +178,7 @@ class BigQueryClient(object):
             for dataset in flattened_results:
                 dataset_info = self.repository.datasets.get(
                     resource=project_id,
-                    target=dataset['datasetId'],
+                    target=dataset['datasetReference']['datasetId'],
                     fields='defaultTableExpirationMs')
                 ext_dataset = dataset.copy()
                 ext_dataset['defaultTableExpirationMs'] = dataset_info.get('defaultTableExpirationMs')
