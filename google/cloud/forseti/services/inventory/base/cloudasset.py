@@ -126,7 +126,9 @@ def _export_assets(cloudasset_client, config, content_type):
 
     try:
         LOGGER.debug('Downloading Cloud Asset data from GCS to disk.')
-        return file_loader.copy_file_from_gcs(export_path)
+        copy_path = file_loader.copy_file_from_gcs(export_path)
+        LOGGER.info(' QQQQQQQQ %s', copy_path)
+        return copy_path
     except errors.HttpError as e:
         LOGGER.warn('Download of CAI dump from GCS failed: %s', e)
         return None
