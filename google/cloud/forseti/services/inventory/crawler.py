@@ -329,6 +329,8 @@ def run_crawler(storage,
     else:
         crawler_config = CrawlerConfig(storage, progresser, client)
         crawler_impl = Crawler(crawler_config)
+    LOGGER.info('run crawler_impl !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+    print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
     progresser = crawler_impl.run(resource)
     # flush the buffer at the end to make sure nothing is cached.
     storage.commit()
