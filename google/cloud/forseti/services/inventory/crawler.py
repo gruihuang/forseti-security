@@ -85,6 +85,9 @@ class Crawler(crawler.Crawler):
         super(Crawler, self).__init__()
         self.config = config
 
+    def get_progresser(self):
+        return self.config.progresser
+
     def run(self, resource):
         """Run the crawler, given a start resource.
 
@@ -330,8 +333,9 @@ def run_crawler(storage,
         crawler_config = CrawlerConfig(storage, progresser, client)
         crawler_impl = Crawler(crawler_config)
     LOGGER.info('run crawler_impl !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-    print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-    progresser = crawler_impl.run(resource)
+    print('\n\n\n\n\n\n\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+    crawler_impl.run(resource)
+    progresser = crawler_impl.get_progresser()
     # flush the buffer at the end to make sure nothing is cached.
     storage.commit()
     return progresser
