@@ -19,7 +19,7 @@ tests/services/model/importer/update_test_dbs.py.
 
 import json
 
-ORGANIZATION_ID = "organizations/111222333"
+ORGANIZATION_ID = ["organizations/111222333"]
 FOLDER_ID = "folders/444555666"
 
 GSUITE_CUSTOMER_ID = "ABC123DEF"
@@ -296,14 +296,14 @@ BQ_GET_DATASET_ACCESS = {
 }
 
 CRM_GET_ORGANIZATION = {
-    ORGANIZATION_ID: {
+    ORGANIZATION_ID[0]: {
         "displayName": "forseti.test",
         "owner": {
             "directoryCustomerId": GSUITE_CUSTOMER_ID
         },
         "creationTime": "2015-09-09T19:34:18.591Z",
         "lifecycleState": "ACTIVE",
-        "name": ORGANIZATION_ID
+        "name": ORGANIZATION_ID[0]
     }
 }
 
@@ -322,11 +322,11 @@ CRM_GET_FOLDER = {
     "folders/" + FOLDER_ID_PREFIX + "1":
         json.loads(
             CRM_FOLDER_TEMPLATE.format(
-                id=1, parent=ORGANIZATION_ID, name="Folder 1")),
+                id=1, parent=ORGANIZATION_ID[0], name="Folder 1")),
     "folders/" + FOLDER_ID_PREFIX + "2":
         json.loads(
             CRM_FOLDER_TEMPLATE.format(
-                id=2, parent=ORGANIZATION_ID, name="Folder 2")),
+                id=2, parent=ORGANIZATION_ID[0], name="Folder 2")),
     "folders/" + FOLDER_ID_PREFIX + "3":
         json.loads(
             CRM_FOLDER_TEMPLATE.format(
@@ -335,7 +335,7 @@ CRM_GET_FOLDER = {
 }
 
 CRM_GET_FOLDERS = {
-    ORGANIZATION_ID: [
+    ORGANIZATION_ID[0]: [
         CRM_GET_FOLDER["folders/" + FOLDER_ID_PREFIX + "1"],
         CRM_GET_FOLDER["folders/" + FOLDER_ID_PREFIX + "2"]
     ],
@@ -559,7 +559,7 @@ CRM_ORG_IAM_POLICY = """
 """
 
 CRM_GET_IAM_POLICIES = {
-    ORGANIZATION_ID: json.loads(CRM_ORG_IAM_POLICY),
+    ORGANIZATION_ID[0]: json.loads(CRM_ORG_IAM_POLICY),
     "folders/" + FOLDER_ID_PREFIX + "1": json.loads(CRM_FOLDER_IAM_POLICY),
     "folders/" + FOLDER_ID_PREFIX + "2": json.loads(CRM_FOLDER_IAM_POLICY),
     "folders/" + FOLDER_ID_PREFIX + "3": json.loads(CRM_FOLDER_IAM_POLICY),
@@ -614,7 +614,7 @@ CRM_PROJECT_ORG_POLICIES = """
 """
 
 CRM_GET_ORG_POLICIES = {
-    ORGANIZATION_ID: json.loads(CRM_ORG_ORG_POLICIES),
+    ORGANIZATION_ID[0]: json.loads(CRM_ORG_ORG_POLICIES),
     "folders/" + FOLDER_ID_PREFIX + "1": json.loads(CRM_FOLDER_ORG_POLICIES),
     "folders/" + FOLDER_ID_PREFIX + "2": {},
     "folders/" + FOLDER_ID_PREFIX + "3": {},
@@ -2102,9 +2102,9 @@ ORG_ROLES_TEMPLATE = """
 """
 
 IAM_GET_ORG_ROLES = {
-    ORGANIZATION_ID: [
+    ORGANIZATION_ID[0]: [
         json.loads(
-            ORG_ROLES_TEMPLATE.format(orgid=ORGANIZATION_ID, role="role2")),
+            ORG_ROLES_TEMPLATE.format(orgid=ORGANIZATION_ID[0], role="role2")),
     ]
 }
 
@@ -5974,7 +5974,7 @@ LOG_SINK_TEMPLATE_INCL_CHILDREN = """
 """
 
 LOGGING_GET_ORG_SINKS = {
-    ORGANIZATION_ID: [
+    ORGANIZATION_ID[0]: [
         json.loads(
             LOG_SINK_TEMPLATE.format(
                 name="org-audit-logs",

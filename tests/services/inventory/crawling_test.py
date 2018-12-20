@@ -202,7 +202,7 @@ class CrawlerTest(CrawlerBase):
     def test_crawling_from_folder(self):
         """Crawl from folder, verify expected resources crawled."""
         config = InventoryConfig(
-            'folders/1032',
+            ['folders/1032'],
             '',
             {},
             '',
@@ -229,7 +229,7 @@ class CrawlerTest(CrawlerBase):
     def test_crawling_from_project(self):
         """Crawl from project, verify expected resources crawled."""
         config = InventoryConfig(
-            'projects/1041',
+            ['projects/1041'],
             '',
             {},
             '',
@@ -526,13 +526,13 @@ class CloudAssetCrawlerTest(CrawlerBase):
 
                         # Validate export_assets called with asset_types
                         expected_calls = [
-                            mock.call(gcp_api_mocks.ORGANIZATION_ID,
+                            mock.call(gcp_api_mocks.ORGANIZATION_ID[0],
                                       mock.ANY,
                                       content_type='RESOURCE',
                                       asset_types=asset_types,
                                       blocking=mock.ANY,
                                       timeout=mock.ANY),
-                            mock.call(gcp_api_mocks.ORGANIZATION_ID,
+                            mock.call(gcp_api_mocks.ORGANIZATION_ID[0],
                                       mock.ANY,
                                       content_type='IAM_POLICY',
                                       asset_types=asset_types,

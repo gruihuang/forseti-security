@@ -330,10 +330,9 @@ def run_crawler(storage,
     else:
         crawler_config = CrawlerConfig(storage, progresser, client)
         crawler_impl = Crawler(crawler_config)
-    LOGGER.info('run crawler_impl !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-    print('\n\n\n\n\n\n\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
     for root_index in range(0, config.get_root_count()):
         root_id = config.get_root_resource_id(root_index)
+        print('aaaaaaaaaaaaaaaaa', root_id, config.root_resource_ids)
         resource = resources.from_root_id(client, root_id)
         crawler_impl.run(resource)
     progresser = crawler_impl.get_progresser()
