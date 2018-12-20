@@ -12,7 +12,7 @@ inventory:
 
     # Root resource to start crawling from, formatted as
     # <resource_type>/<resource_id>, (e.g. "organizations/12345677890")
-    root_resource_id: {ROOT_RESOURCE_ID}
+    root_resource_id: [{ROOT_RESOURCE_ID}]
 
     # gsuite access
     domain_super_admin_email: {DOMAIN_SUPER_ADMIN_EMAIL}

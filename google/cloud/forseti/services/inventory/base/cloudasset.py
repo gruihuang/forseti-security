@@ -89,7 +89,7 @@ def _export_assets(cloudasset_client, config, content_type):
             error.
     """
     asset_types = config.get_cai_asset_types()
-    root_id = config.get_root_resource_id()
+    root_id = config.get_root_resource_id(0)
     timestamp = int(time.time())
     export_path = _get_gcs_path(config.get_cai_gcs_path(),
                                 content_type,

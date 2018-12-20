@@ -37,12 +37,12 @@ class ServiceTest(ForsetiTestCase):
 
     def test_determine_is_supported(self):
         inventory_config = self.grpc_explainer.explainer.config.inventory_config
-        inventory_config.root_resource_id = 'organizations/11111'
+        inventory_config.root_resource_ids = ['organizations/11111']
         self.assertTrue(self.grpc_explainer._determine_is_supported())
 
     def test_determine_is_not_supported(self):
         inventory_config = self.grpc_explainer.explainer.config.inventory_config
-        inventory_config.root_resource_id = 'folders/22222'
+        inventory_config.root_resource_ids = ['folders/22222']
         self.assertFalse(self.grpc_explainer._determine_is_supported())
 
 

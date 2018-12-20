@@ -59,7 +59,7 @@ class GrpcExplainer(explain_pb2_grpc.ExplainServicer):
             bool: True if Explainer module can be used.
         """
         root_resource_id = (
-            self.explainer.config.inventory_config.root_resource_id)
+            self.explainer.config.inventory_config.get_root_resource_id(0))
         if 'organizations' in root_resource_id:
             return True
         return False

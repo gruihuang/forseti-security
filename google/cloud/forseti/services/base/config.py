@@ -70,8 +70,11 @@ class AbstractInventoryConfig(dict):
     __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
-    def get_root_resource_id(self):
-        """Returns the root resource id."""
+    def get_root_resource_id(self, root_index):
+        """Returns the root resource id.
+
+        Args:
+            root_index (int): Index of the root."""
 
     @abc.abstractmethod
     def get_gsuite_admin_email(self):
@@ -145,7 +148,7 @@ class InventoryConfig(AbstractInventoryConfig):
     """Implements composed dependency injection for the inventory."""
 
     def __init__(self,
-                 root_resource_id,
+                 root_resource_ids,
                  gsuite_admin_email,
                  api_quota_configs,
                  retention_days,
@@ -155,7 +158,7 @@ class InventoryConfig(AbstractInventoryConfig):
         """Initialize.
 
         Args:
-            root_resource_id (str): Root resource to start crawling from
+            root_resource_ids (list): Root list to start crawling from
             gsuite_admin_email (str): G Suite admin email
             api_quota_configs (dict): API quota configs
             retention_days (int): Days of inventory tables to retain
@@ -165,19 +168,30 @@ class InventoryConfig(AbstractInventoryConfig):
         """
         super(InventoryConfig, self).__init__(*args, **kwargs)
         self.service_config = None
-        self.root_resource_id = root_resource_id
+        self.root_resource_ids = root_resource_ids[:]
         self.gsuite_admin_email = gsuite_admin_email
         self.api_quota_configs = api_quota_configs
         self.retention_days = retention_days
         self.cai_configs = cai_configs
 
-    def get_root_resource_id(self):
+    def get_root_count(self):
+        """Return the number of roots.
+
+        Returns:
+            int: number of roots.
+        """
+        return len(self.root_resource_ids)
+
+    def get_root_resource_id(self, root_index):
         """Return the configured root resource id.
+
+        Args:
+            root_index (int): Index of the root.
 
         Returns:
             str: Root resource id.
         """
-        return self.root_resource_id
+        return self.root_resource_ids[root_index]
 
     def get_gsuite_admin_email(self):
         """Return the gsuite admin email to use.
@@ -221,7 +235,10 @@ class InventoryConfig(AbstractInventoryConfig):
         Returns:
             bool: Whether CAI should be integrated with the inventory or not.
         """
-        return _validate_cai_enabled(self.root_resource_id, self.cai_configs)
+        if self.get_root_count() > 1:
+            return False
+        return _validate_cai_enabled(self.get_root_resource_id(0),
+                                     self.cai_configs)
 
     def get_cai_gcs_path(self):
         """Returns the GCS bucket path to store the CAI data dumps in.
@@ -336,7 +353,7 @@ class ServiceConfig(AbstractServiceConfig):
             # Setting up individual configurations
             forseti_inventory_config = forseti_config.get('inventory', {})
             inventory_config = InventoryConfig(
-                forseti_inventory_config.get('root_resource_id', ''),
+                forseti_inventory_config.get('root_resource_ids', ''),
                 forseti_inventory_config.get('domain_super_admin_email', ''),
                 forseti_inventory_config.get('api_quota', {}),
                 forseti_inventory_config.get('retention_days', -1),

@@ -49,7 +49,7 @@ class ExternalProjectAccessRulesEngineTest(ForsetiTestCase):
         self.rules_engine.LOGGER = mock.MagicMock()
         self.inventory_config = mock.MagicMock()
         self.inventory_config.get_root_resource_id = (
-            mock.MagicMock(return_value='organizations/567890'))
+            mock.MagicMock(return_value=['organizations/567890']))
 
 
     def test_no_rule_added(self):
@@ -116,8 +116,8 @@ class ExternalProjectAccessRulesEngineTest(ForsetiTestCase):
             rules_file_path=rules_local_path)
         rules_engine.build_rule_book(self.inventory_config)
         for user, ancestry in self.TEST_ANCESTRIES_VIOLATIONS.iteritems():
-            violations = rules_engine.find_violations(user, 
-                                                             ancestry, 
+            violations = rules_engine.find_violations(user,
+                                                             ancestry,
                                                              True)
             all_violations.extend(violations)
         self.assertEqual(len(all_violations), 2)
@@ -147,7 +147,7 @@ class ExternalProjectAccessRuleBookTest(ForsetiTestCase):
         self.inventory_config = mock.MagicMock()
 
         self.inventory_config.get_root_resource_id = (
-            mock.MagicMock(return_value='organizations/7890'))
+            mock.MagicMock(return_value=['organizations/7890']))
         self.rule_book = (
             engine_module.ExternalProjectAccessRuleBook(self.inventory_config))
 
