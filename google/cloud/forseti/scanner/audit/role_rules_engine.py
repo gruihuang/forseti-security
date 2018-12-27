@@ -77,7 +77,9 @@ class RolePermissionRulesEngine(bre.BaseRulesEngine):
             self.build_rule_book()
 
         violations = itertools.chain()
+        LOGGER.info('find_violations in role %s; %s', resource.id, resource)
         rule = self.rule_book.get_rule_by_role_name(resource.id)
+        LOGGER.info('rule in role %s', rule)
         violations = itertools.chain(
             violations,
             rule.find_violations(resource))
