@@ -1039,12 +1039,7 @@ class InventoryImporter(object):
         Returns:
             bool: Whether the resource is root or not
         """
-        if not self.found_root:
-            is_root = not resource.get_parent_id()
-            if is_root:
-                self.found_root = True
-            return is_root
-        return False
+        return not resource.get_parent_id()
 
     @staticmethod
     def _type_name(resource):
