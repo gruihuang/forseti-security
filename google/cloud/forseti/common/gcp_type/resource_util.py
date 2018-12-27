@@ -25,6 +25,7 @@ from google.cloud.forseti.common.gcp_type import instance
 from google.cloud.forseti.common.gcp_type import organization as org
 from google.cloud.forseti.common.gcp_type import project
 from google.cloud.forseti.common.gcp_type import resource
+from google.cloud.forseti.common.gcp_type import role
 from google.cloud.forseti.common.gcp_type import table
 from google.cloud.forseti.services import utils
 
@@ -79,14 +80,14 @@ _RESOURCE_TYPE_MAP = {
         'plural': 'GKE Clusters',
         'can_create_resource': True,
     },
-    resource.ResourceType.DATASET: {
-        'class': dataset.Dataset,
-        'plural': 'Datasets',
-        'can_create_resource': True,
-    },
     resource.ResourceType.TABLE: {
         'class': table.Table,
         'plural': 'Tables',
+        'can_create_resource': True,
+    },
+    resource.ResourceType.ROLE: {
+        'class': role.Role,
+        'plural': 'Roles',
         'can_create_resource': True,
     },
 }

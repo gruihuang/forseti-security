@@ -33,6 +33,7 @@ class ResourceType(object):
     FOLDER = resources.ResourceManagerFolder.type()
     PROJECT = resources.ResourceManagerProject.type()
     LIEN = resources.ResourceManagerLien.type()
+    ROLE = resources.IamRole.type()
 
     # Groups
     GROUP = resources.GsuiteGroup.type()
