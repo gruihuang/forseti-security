@@ -50,23 +50,6 @@ def get_rules_engine_with_rule(rule):
         rules_engine.build_rule_book()
     return rules_engine
 
-def get_expect_violation_item(res_map, bucket_id, rule_name, rule_index):
-    RuleViolation = namedtuple(
-    'RuleViolation',
-    ['resource_name', 'resource_type', 'full_name', 'rule_name',
-     'rule_index', 'violation_type', 'violation_data', 'resource_data'])
-    lifecycle_str = json.dumps(res_map.get(bucket_id).get_lifecycle_rule())
-
-    return RuleViolation(
-        resource_name=bucket_id,
-        resource_type=res_map.get(bucket_id).type,
-        full_name=res_map.get(bucket_id).full_name,
-        rule_name=rule_name,
-        rule_index=rule_index,
-        violation_type=rre.VIOLATION_TYPE,
-        violation_data=lifecycle_str,
-        resource_data=res_map.get(bucket_id).data)
-
 
 class RoleRulesEngineTest(ForsetiTestCase):
     """Tests for the BigqueryRulesEngine."""
@@ -190,7 +173,7 @@ rules:
         data_creater = frsd.FakeRoleDataCreater('roles/forsetiBigqueryViewer',
                                                 ["bigquery.datasets.get",
                                                  "bigquery.tables.get",
-                                                 "bigquery.tables.list"])
+                                                 "bigquery.tables.list"], None)
 
         fake_role = data_creater.get_resource()
         got_violations = list(rules_engine.find_violations(fake_role))
@@ -204,7 +187,7 @@ rules:
 
         data_creater = frsd.FakeRoleDataCreater('roles/forsetiBigqueryViewer',
                                                 ["bigquery.tables.get",
-                                                 "bigquery.tables.list"])
+                                                 "bigquery.tables.list"], None)
 
         fake_role = data_creater.get_resource()
         got_violations = list(rules_engine.find_violations(fake_role))

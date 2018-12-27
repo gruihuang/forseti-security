@@ -80,9 +80,10 @@ def build_table_violations(table, rule_name):
     )]
 
 class FakeRoleDataCreater():
-    def __init__(self, name, permissions):
+    def __init__(self, name, permissions, parent):
         self._name = name
         self.SetPermissions(permissions)
+        self._parent = parent
 
     def SetPermissions(self, permissions):
         self._permissions = permissions
@@ -92,14 +93,15 @@ class FakeRoleDataCreater():
 
         data = json.dumps(data_dict)
         return role.Role(role_id=self._name,
+                         parent=self._parent,
                          data=data)
 
 
 FakeRoleDataInput = collections.namedtuple(
-    'FakeBucketDataInput', ['name', 'permission'])
+    'FakeBucketDataInput', ['name', 'permission', 'parent'])
 
 
-def get_fake_bucket_resource(fake_role_data_input):
+def get_fake_role_resource(fake_role_data_input):
     """Create a fake Bucket object for test cases
 
     Args:
@@ -109,7 +111,7 @@ def get_fake_bucket_resource(fake_role_data_input):
         Bucket: A new Bucket.
     """
     data_creater = FakeRoleDataCreater(
-        fake_role_data_input.name, fake_role_data_input.permission)
+        fake_role_data_input.name, fake_role_data_input.permission, fake_role_data_input.parent)
 
     return data_creater.get_resource()
 

@@ -148,6 +148,9 @@ class RolePermissionRuleBook(bre.BaseRuleBook):
         return self.rules_map.get(role_name)
 
 
+def create_rule_name_by_role_name(role_name):
+    return "Permission Rule of " + role_name
+
 class Rule(object):
     """Rule properties from the rule definition file. Also finds violations."""
 
@@ -159,7 +162,7 @@ class Rule(object):
             role_name(str): Name of the role.
             permissions(int): Expected permissions of the role.
         """
-        self.rule_name = "Permission Rule of " + role_name
+        self.rule_name = create_rule_name_by_role_name(role_name)
         self.rule_index = rule_index
         self.permissions = permissions[:]
 
@@ -197,7 +200,6 @@ class Rule(object):
         Raises:
             ValueError: Raised if the resource type is bucket.
         """
-
         if res.type == 'role':
             return self.find_violations_in_role(res)
         raise ValueError(

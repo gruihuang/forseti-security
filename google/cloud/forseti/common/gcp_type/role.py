@@ -75,11 +75,11 @@ class Role(resource.Resource):
             Dataset: dataset resource.
         """
         role_dict = json.loads(json_string)
-        _, role_id = dataset_dict['name'].split('/')
+        role_id = role_dict['name']
         return cls(
             parent=parent,
             role_id=role_id,
-            full_name='{}role/{}/'.format(parent.full_name, role_id),
+            name=role_id,
             display_name=role_id,
             data=json_string,
         )
