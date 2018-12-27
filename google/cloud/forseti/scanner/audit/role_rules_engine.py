@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Rules engine for Bucket retention."""
+"""Rules engine for Roles."""
 import collections
 import itertools
 import threading
@@ -38,7 +38,7 @@ RuleViolation = collections.namedtuple(
 
 
 class RolePermissionRulesEngine(bre.BaseRulesEngine):
-    """Rules engine for retention."""
+    """Rules engine for roles."""
 
     def __init__(self, rules_file_path, snapshot_timestamp=None):
         """Initialize.
@@ -156,8 +156,8 @@ class Rule(object):
 
         Args:
             rule_index (int): The index of the rule.
-            min_retention(int): minimum value of the age in lifecycle.
-            max_retention(int): maximum value of the age in lifecycle.
+            role_name(str): Name of the role.
+            permissions(int): Expected permissions of the role.
         """
         self.rule_name = "Permission Rule of " + role_name
         self.rule_index = rule_index

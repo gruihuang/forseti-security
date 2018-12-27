@@ -120,7 +120,7 @@ class RoleScanner(base_scanner.BaseScanner):
                 )
                 tmp_parent.full_name = resource.parent.full_name
                 new_res = resource_util.create_resource_from_json(
-                    resource_type, tmp_parent, resource.data)
+                    'role', tmp_parent, resource.data)
                 role_res.append(new_res)
 
         return role_res
