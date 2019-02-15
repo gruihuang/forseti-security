@@ -31,7 +31,8 @@ from google.cloud.forseti.scanner.scanners import retention_scanner
 
 def get_expect_violation_item(res_map, bucket_id, rule_name, rule_index):
     """Create violations for expected violation list"""
-    lifecycle_str = json.dumps(res_map.get(bucket_id).get_lifecycle_rule())
+    lifecycle_str = json.dumps(res_map.get(bucket_id).get_lifecycle_rule(),
+                               sort_keys=True)
 
     return rre.RuleViolation(
         resource_id=bucket_id,
@@ -446,17 +447,17 @@ rules:
             frsd.FakeTableDataInput(
                 table_id='fake-table-01',
                 dataset=frsd.DATASET1,
-                expiration_time=frsd.DEFAULT_TABLE_CREATE_TIME+110*3600000*24
+                expiration_time=frsd.DEFAULT_TABLE_CREATE_TIME+110 * rre._MS_PER_DAY
             ),
             frsd.FakeTableDataInput(
                 table_id='fake-table-02',
                 dataset=frsd.DATASET1,
-                expiration_time=frsd.DEFAULT_TABLE_CREATE_TIME+89*3600000*24
+                expiration_time=frsd.DEFAULT_TABLE_CREATE_TIME+89 * rre._MS_PER_DAY
             ),
             frsd.FakeTableDataInput(
                 table_id='fake-table-03',
                 dataset=frsd.DATASET1,
-                expiration_time=frsd.DEFAULT_TABLE_CREATE_TIME+91*3600000*24
+                expiration_time=frsd.DEFAULT_TABLE_CREATE_TIME+91 * rre._MS_PER_DAY
             ),
         ]
 

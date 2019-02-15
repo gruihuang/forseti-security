@@ -13,11 +13,14 @@
 # limitations under the License.
 """Importer implementations."""
 
+# pylint: disable=too-many-lines
 # pylint: disable=too-many-instance-attributes
 
 import json
 from StringIO import StringIO
 import traceback
+
+from sqlalchemy.exc import SQLAlchemyError
 
 from google.cloud.forseti.common.util import logger
 from google.cloud.forseti.services.inventory.storage import Storage as Inventory
@@ -77,7 +80,8 @@ class EmptyImporter(object):
         self.session.add(self.model)
         self.model.add_description(
             json.dumps(
-                {'source': 'empty', 'pristine': True}
+                {'source': 'empty', 'pristine': True},
+                sort_keys=True
             )
         )
         self.model.set_done()
@@ -128,6 +132,15 @@ class InventoryImporter(object):
 
         self.found_root = False
 
+    def _flush_session(self):
+        """Flush the session with rollback on errors."""
+        try:
+            self.session.flush()
+        except SQLAlchemyError:
+            LOGGER.exception(
+                'Unexpected SQLAlchemyError occurred during model creation.')
+            self.session.rollback()
+
     # pylint: disable=too-many-statements
     def run(self):
         """Runs the import.
@@ -163,8 +176,11 @@ class InventoryImporter(object):
             'compute_targetpool',
             'compute_targetsslproxy',
             'compute_targettcpproxy',
+            'compute_targetvpngateway',
             'compute_urlmap',
+            'compute_vpntunnel',
             'crm_org_policy',
+            'dataproc_cluster',
             'dataset',
             'disk',
             'dns_managedzone',
@@ -182,6 +198,7 @@ class InventoryImporter(object):
             'kubernetes_cluster',
             'lien',
             'network',
+            'pubsub_subscription',
             'pubsub_topic',
             'serviceaccount',
             'serviceaccount_key',
@@ -221,7 +238,8 @@ class InventoryImporter(object):
                         ['gsuite_group', 'gsuite_user'])
                 }
                 LOGGER.debug('Model description: %s', description)
-                self.model.add_description(json.dumps(description))
+                self.model.add_description(json.dumps(description,
+                                                      sort_keys=True))
 
                 if root.get_resource_type() in ['organization']:
                     LOGGER.debug('Root resource is organization: %s', root)
@@ -237,48 +255,48 @@ class InventoryImporter(object):
                         # Flush database every 1000 resources
                         LOGGER.debug('Flushing model write session: %s',
                                      item_counter)
-                        self.session.flush()
+                        self._flush_session()
 
                 if item_counter % 1000:
                     # Additional rows added since last flush.
-                    self.session.flush()
+                    self._flush_session()
                 LOGGER.debug('Finished storing resources into models.')
 
                 item_counter += self.model_action_wrapper(
-                    self.session,
                     inventory.iter(['role']),
                     self._convert_role,
                     post_action=self._convert_role_post
                 )
 
                 item_counter += self.model_action_wrapper(
-                    self.session,
                     inventory.iter(gcp_type_list,
                                    fetch_dataset_policy=True),
                     self._convert_dataset_policy
                 )
 
                 item_counter += self.model_action_wrapper(
-                    self.session,
+                    inventory.iter(gcp_type_list,
+                                   fetch_gcs_policy=True),
+                    self._convert_gcs_policy
+                )
+
+                item_counter += self.model_action_wrapper(
                     inventory.iter(gcp_type_list,
                                    fetch_service_config=True),
                     self._convert_service_config
                 )
 
                 self.model_action_wrapper(
-                    self.session,
                     inventory.iter(gsuite_type_list),
                     self._store_gsuite_principal
                 )
 
                 self.model_action_wrapper(
-                    self.session,
                     inventory.iter(gcp_type_list, fetch_enabled_apis=True),
                     self._convert_enabled_apis
                 )
 
                 self.model_action_wrapper(
-                    self.session,
                     inventory.iter(member_type_list, with_parent=True),
                     self._store_gsuite_membership,
                     post_action=self._store_gsuite_membership_post
@@ -287,11 +305,13 @@ class InventoryImporter(object):
                 self.dao.denorm_group_in_group(self.session)
 
                 self.model_action_wrapper(
-                    self.session,
                     inventory.iter(gcp_type_list,
                                    fetch_iam_policy=True),
                     self._store_iam_policy
                 )
+
+                self.dao.expand_special_members(self.session)
+
         except Exception as e:  # pylint: disable=broad-except
             LOGGER.exception(e)
             buf = StringIO()
@@ -312,8 +332,7 @@ class InventoryImporter(object):
             self.session.autoflush = autoflush
     # pylint: enable=too-many-statements
 
-    @staticmethod
-    def model_action_wrapper(session,
+    def model_action_wrapper(self,
                              inventory_iterable,
                              action,
                              post_action=None,
@@ -321,7 +340,6 @@ class InventoryImporter(object):
         """Model action wrapper. This is used to reduce code duplication.
 
         Args:
-            session (Session): Database session.
             inventory_iterable (Iterable): Inventory iterable.
             action (func): Action taken during the iteration of
                 the inventory list.
@@ -344,11 +362,11 @@ class InventoryImporter(object):
             if not idx % flush_count:
                 # Flush database every flush_count resources
                 LOGGER.debug('Flushing write session: %s.', idx)
-                session.flush()
+                self._flush_session()
 
         if idx % flush_count:
             # Additional rows added since last flush.
-            session.flush()
+            self._flush_session()
 
         if post_action:
             post_action()
@@ -524,6 +542,7 @@ class InventoryImporter(object):
             'appengine_service': self._convert_gae_resource,
             'appengine_version': self._convert_gae_resource,
             'backendservice': self._convert_computeengine_resource,
+            'bigquery_table': self._convert_bigquery_table,
             'billing_account': self._convert_billing_account,
             'bucket': self._convert_bucket,
             'cloudsqlinstance': self._convert_cloudsqlinstance,
@@ -542,8 +561,11 @@ class InventoryImporter(object):
             'compute_targetpool': self._convert_computeengine_resource,
             'compute_targetsslproxy': self._convert_computeengine_resource,
             'compute_targettcpproxy': self._convert_computeengine_resource,
+            'compute_targetvpngateway': self._convert_computeengine_resource,
             'compute_urlmap': self._convert_computeengine_resource,
+            'compute_vpntunnel': self._convert_computeengine_resource,
             'crm_org_policy': self._convert_crm_org_policy,
+            'dataproc_cluster': self._convert_dataproc_cluster,
             'dataset': self._convert_dataset,
             'disk': self._convert_computeengine_resource,
             'dns_managedzone': self._convert_clouddns_resource,
@@ -564,7 +586,8 @@ class InventoryImporter(object):
             'network': self._convert_computeengine_resource,
             'organization': self._convert_organization,
             'project': self._convert_project,
-            'pubsub_topic': self._convert_pubsub_topic,
+            'pubsub_subscription': self._convert_pubsub_resource,
+            'pubsub_topic': self._convert_pubsub_resource,
             'serviceaccount': self._convert_serviceaccount,
             'serviceaccount_key': self._convert_serviceaccount_key,
             'sink': self._convert_sink,
@@ -659,6 +682,15 @@ class InventoryImporter(object):
         self._convert_resource(org_policy, cached=False,
                                display_key='constraint')
 
+    def _convert_dataproc_cluster(self, cluster):
+        """Convert a dataproc cluster to a database object.
+
+        Args:
+            cluster (object): Dataproc Cluster to store.
+        """
+        self._convert_resource(cluster, cached=True,
+                               display_key='clusterName')
+
     def _convert_dataset(self, dataset):
         """Convert a dataset to a database object.
 
@@ -735,13 +767,13 @@ class InventoryImporter(object):
         self._convert_resource(organization, cached=True,
                                display_key='displayName')
 
-    def _convert_pubsub_topic(self, topic):
-        """Convert a PubSub Topic to a database object.
+    def _convert_pubsub_resource(self, resource):
+        """Convert a PubSub resource to a database object.
 
         Args:
-            topic (object): Pubsub Topic to store.
+            resource (object): Pubsub resource to store.
         """
-        self._convert_resource(topic, cached=True)
+        self._convert_resource(resource, cached=True)
 
     def _convert_project(self, project):
         """Convert a project to a database object.
@@ -814,7 +846,7 @@ class InventoryImporter(object):
             type_name=type_name,
             name=cloudsqlinstance.get_resource_id(),
             type=cloudsqlinstance.get_resource_type(),
-            display_name=data.get('displayName', ''),
+            display_name=data.get('name', ''),
             email=data.get('email', ''),
             data=cloudsqlinstance.get_resource_data_raw(),
             parent=parent)
@@ -861,6 +893,27 @@ class InventoryImporter(object):
             name=enabled_apis.get_resource_id(),
             type=enabled_apis.get_category(),
             data=enabled_apis.get_resource_data_raw(),
+            parent=parent)
+
+        self.session.add(resource)
+
+    def _convert_gcs_policy(self, gcs_policy):
+        """Convert a gcs policy to a database object.
+
+        Args:
+            gcs_policy (object): Cloud Storage Bucket ACL policy to store.
+        """
+        parent, full_res_name = self._get_parent(gcs_policy)
+        policy_type_name = to_type_name(
+            gcs_policy.get_category(),
+            gcs_policy.get_resource_id())
+        policy_res_name = to_full_resource_name(full_res_name, policy_type_name)
+        resource = self.dao.TBL_RESOURCE(
+            full_name=policy_res_name,
+            type_name=policy_type_name,
+            name=gcs_policy.get_resource_id(),
+            type=gcs_policy.get_category(),
+            data=gcs_policy.get_resource_data_raw(),
             parent=parent)
 
         self.session.add(resource)
@@ -968,8 +1021,8 @@ class InventoryImporter(object):
         Args:
             table (object): table to store.
         """
-        # cached should be True or False?
-        self._convert_resource(table, cached=False)
+
+        self._convert_resource(table, cached=True)
 
     def _add_to_cache(self, resource, resource_id):
         """Add a resource to the cache for parent lookup.

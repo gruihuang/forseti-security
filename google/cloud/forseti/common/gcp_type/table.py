@@ -13,7 +13,7 @@
 # limitations under the License.
 """A Table Resource.
 
-See: https://cloud.google.com/storage/docs/json_api/v1/
+See: https://cloud.google.com/bigquery/docs/reference/rest/v2/tables
 """
 
 import json
@@ -47,7 +47,11 @@ class Table(resource.Resource):
             full_name (str): The full resource name and ancestry.
             data (str): Resource representation of the table.
             name (str): The table's unique GCP name, with the
+<<<<<<< HEAD
                 format "tables/{id}".
+=======
+                format "bigquery_tables/{id}".
+>>>>>>> 288657e0af2408c62b2dccb71b1687766961d899
             display_name (str): The table's display name.
             locations (List[str]): Locations this table resides in. If set,
                 there should be exactly one element in the list.
@@ -68,6 +72,7 @@ class Table(resource.Resource):
 
     @classmethod
     def from_json(cls, parent, json_string):
+<<<<<<< HEAD
         """Create a bucket from a JSON string.
 
         Args:
@@ -76,6 +81,16 @@ class Table(resource.Resource):
 
         Returns:
             Bucket: bucket resource.
+=======
+        """Create a Table from a JSON string.
+
+        Args:
+            parent (Resource): resource this table belongs to.
+            json_string(str): JSON string of a table GCP API response.
+
+        Returns:
+            Table: table resource.
+>>>>>>> 288657e0af2408c62b2dccb71b1687766961d899
         """
         table_dict = json.loads(json_string)
         table_id = table_dict['id']

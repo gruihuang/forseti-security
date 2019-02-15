@@ -68,6 +68,12 @@ class ResourceType(object):
     # Logging
     LOG_SINK = resources.LoggingSink.type()
 
+    # Crypto key
+    CRYPTO_KEY = resources.KmsCryptoKey.type()
+
+    # Key Ring
+    KEY_RING = resources.KmsKeyRing.type()
+
     resource_types = frozenset([
         ORGANIZATION,
         BILLING_ACCOUNT,
@@ -78,6 +84,8 @@ class ResourceType(object):
         FORWARDING_RULE,
         LIEN,
         LOG_SINK,
+        CRYPTO_KEY,
+        KEY_RING
     ])
 
     @classmethod

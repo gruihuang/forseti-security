@@ -273,12 +273,13 @@ BQ_GET_DATASETS_FOR_PROJECTID = {
             "projectId": "project3"
         },
         "id": "project3:dataset1",
-        "kind": "bigquery#dataset"
+        "kind": "bigquery#dataset",
+        "location": "us"
     }]
 }
 
 BQ_GET_DATASET_ACCESS = {
-    PROJECT_ID_PREFIX + "3": {
+     PROJECT_ID_PREFIX + "3": {
         "dataset1": [{
             "role": "WRITER",
             "specialGroup": "projectWriters"
@@ -663,6 +664,7 @@ SQL_INSTANCE_TEMPLATE = """
  "backendType": "SECOND_GEN",
  "databaseVersion": "MYSQL_5_7",
  "region": "us-west1",
+ "selfLink": "https://www.googleapis.com/sql/v1beta4/projects/{project}/instances/{name}",
  "settings": {{
   "kind": "sql#settings",
   "settingsVersion": "13",
