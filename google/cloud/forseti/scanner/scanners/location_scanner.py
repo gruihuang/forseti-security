@@ -74,6 +74,8 @@ class LocationScanner(base_scanner.BaseScanner):
             for resource_type in lre.SUPPORTED_LOCATION_RESOURCE_TYPES:
                 for resource in data_access.scanner_iter(
                         session, resource_type):
+                    LOGGER.warning('location scanner finding In Scan '+str(resource.data))
+                    LOGGER.warning('location scanner finding In Scan Parent '+str(resource.parent.type))
 
                     if resource.parent.type != 'project':
                         raise ValueError(

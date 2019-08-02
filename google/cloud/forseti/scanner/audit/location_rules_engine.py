@@ -96,6 +96,7 @@ class LocationRulesEngine(base_rules_engine.BaseRulesEngine):
         if self.rule_book is None or force_rebuild:
             self.build_rule_book()
 
+        LOGGER.warning('location scanner finding In Engine '+str(res.id))
         violations = self.rule_book.find_violations(res)
         return violations
 
@@ -121,10 +122,10 @@ class LocationRuleBook(base_rules_engine.BaseRuleBook):
         super(LocationRuleBook, self).__init__()
         self.resource_to_rules = collections.defaultdict(list)
         if not rule_defs:
-            LOGGER.info('location scanner no rules!')
+            LOGGER.warning('location scanner no rules!')
             self.rule_defs = {}
         else:
-            LOGGER.info('location scanner rules:' + json.dumps(rule_defs))
+            LOGGER.warning('location scanner rules:' + json.dumps(rule_defs))
             self.rule_defs = rule_defs
             self.add_rules(rule_defs)
 
@@ -230,6 +231,7 @@ class LocationRuleBook(base_rules_engine.BaseRuleBook):
         Yields:
             RuleViolation: resource locations rule violations.
         """
+        LOGGER.warning('location scanner finding In book '+str(res.full_name))
 
         resource_ancestors = relationship.find_ancestors(
             res, res.full_name)
@@ -288,8 +290,7 @@ class Rule(object):
         applicable_resources.extend(self.applies_to.get('*', []))
         applicable_resources = set(applicable_resources)
 
-        if res.type == 'bucket' or res.id == 'bucket':
-            LOGGER.info('location scanner finding '+str(res.id))
+        LOGGER.warning('location scanner finding '+str(res.id))
 
         if applicable_resources != {'*'} and (
                 res.id not in applicable_resources):
