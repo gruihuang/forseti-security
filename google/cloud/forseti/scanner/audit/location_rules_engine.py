@@ -288,6 +288,9 @@ class Rule(object):
         applicable_resources.extend(self.applies_to.get('*', []))
         applicable_resources = set(applicable_resources)
 
+        if res.type == 'bucket' or res.id == 'bucket':
+            LOGGER.info('location scanner finding '+str(res.id))
+
         if applicable_resources != {'*'} and (
                 res.id not in applicable_resources):
             return
