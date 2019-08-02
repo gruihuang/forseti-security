@@ -18,6 +18,7 @@ from builtins import str
 from builtins import object
 import collections
 import enum
+import json
 import re
 
 from google.cloud.forseti.common.gcp_type import resource
@@ -120,8 +121,10 @@ class LocationRuleBook(base_rules_engine.BaseRuleBook):
         super(LocationRuleBook, self).__init__()
         self.resource_to_rules = collections.defaultdict(list)
         if not rule_defs:
+            LOGGER.info('location scanner no rules!')
             self.rule_defs = {}
         else:
+            LOGGER.info('location scanner rules:' + json.dumps(rule_defs))
             self.rule_defs = rule_defs
             self.add_rules(rule_defs)
 
