@@ -235,6 +235,7 @@ class LocationRuleBook(base_rules_engine.BaseRuleBook):
 
         resource_ancestors = relationship.find_ancestors(
             res, res.full_name)
+        LOGGER.warning('location scanner finding In book A %s'%str(resource_ancestors))
 
         rules = []
         for ancestor_res in resource_ancestors:
@@ -242,8 +243,10 @@ class LocationRuleBook(base_rules_engine.BaseRuleBook):
 
         type_resource_wildcard = resource_util.create_resource(
             resource_id='*', resource_type=res.type)
+        LOGGER.warning('location scanner finding In book B %s'%str(type_resource_wildcard))
 
         rules.extend(self.resource_to_rules.get(type_resource_wildcard, []))
+        LOGGER.warning('location scanner finding In book rule len %d'%len(rules))
 
         for rule in rules:
             for violation in rule.find_violations(res):
